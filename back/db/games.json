@@ -1,0 +1,12 @@
+{
+  "magicNumber": [
+    {
+      "beg": "2018-11-11T13:37:00+01:00",
+      "end": "2018-11-11T13:42:00+01:00",
+      "players": [
+        { "name": "T0ny T0ny Ch0pper", "points": 3 },
+        { "name": "R0r0n0na Z0r0", "points": 2}
+      ]
+    }
+  ]
+}
