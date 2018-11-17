@@ -1,6 +1,7 @@
 import fs from "fs";
 
 const jsonGamers = '../db/gamers.json'
+const jsonScores = '../db/scores.json'
 
 class Filesystem {
 
@@ -35,6 +36,16 @@ class Filesystem {
       let data = JSON.parse(fs.readFileSync(jsonGamers));
       data.gamers = [];
       fs.writeFileSync(jsonGamers, JSON.stringify(data));
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  setScores(game, scores) {
+    try {
+      let data = JSON.parse(fs.readFileSync(jsonScores));
+      data[game].push(scores)
+      fs.writeFileSync(jsonScores, JSON.stringify(data));
     } catch (err) {
       console.log(err);
     }
