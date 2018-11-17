@@ -202,6 +202,7 @@ const start = async () => {
 				} else if (nb == quickey.answer) {
 					socket.round++;
 					quickey.answer = randomWords();
+					let win;
 					if (socket.round == 7) {
 						let playerIndex = quickeyScores.players.findIndex(x => x.name == socket.nickname);
 						quickeyScores.players[playerIndex].points = socket.round;
@@ -284,7 +285,7 @@ const start = async () => {
 				} else if (nb == fastkey.answer) {
 					socket.round++;
 					fastkey.answer = randomWords();
-
+					let win;
 					if (socket.round == 7) {
 						let playerIndex = fastkeyScores.players.findIndex(x => x.name == socket.nickname);
 						fastkeyScores.players[playerIndex].points = socket.round;
@@ -383,6 +384,7 @@ const start = async () => {
 						.map(x => "_")
 						.join(" ");
 					hanged.snake = hanged.answer.split("").map(x => "_");
+					let win;
 					if (socket.round == 3) {
 						let playerIndex = hangedScores.players.findIndex(x => x.name == socket.nickname);
 						hangedScores.players[playerIndex].points = socket.round;
@@ -393,7 +395,7 @@ const start = async () => {
 					else {
 						let playerIndex = hangedScores.players.findIndex(x => x.name == socket.nickname);
 						hangedScores.players[playerIndex].points += 1;
-						win = `You win this round, ${3 - socket.round} more win to.... win. Here the new key: ${snake}`
+						win = `You win this round, ${3 - socket.round} more win to.... win. Here the new word: ${snake}`
 					}
 					const lose =
 						socket.round == 3
