@@ -144,7 +144,17 @@ const start = async () => {
 				quickey.nb = quickey.nb || 0;
 				quickey.nb++;
 
-				if (quickey.nb == 2) {
+				if (quickey.started) {
+					socket.emit(
+						"messageMagic",
+						"The game is already started wait the end"
+					);
+				}
+				else if (quickey.nb == 2) {
+					quickey.started = true;
+					socket.emit("start", true);
+					socket.broadcast.emit("start", true);
+
 					quickey.answer = randomWords();
 					socket.emit(
 						"messageMagic",
@@ -155,6 +165,13 @@ const start = async () => {
 						`The game is to type the word ${quickey.answer} quickly`
 					);
 				}
+				else {
+					socket.emit(
+						"messageMagic",
+						"waiting other player"
+					);
+				}
+
 				console.log(quickey.nb);
 				console.log(`${socket.nickname} is ready`);
 			});
@@ -203,7 +220,17 @@ const start = async () => {
 				fastkey.nb = fastkey.nb || 0;
 				fastkey.nb++;
 
-				if (fastkey.nb == 2) {
+				if (fastkey.started) {
+					socket.emit(
+						"messageMagic",
+						"The game is already started wait the end"
+					);
+				}
+				else if (fastkey.nb == 2) {
+					fastkey.started = true;
+					socket.emit("start", true);
+					socket.broadcast.emit("start", true);
+
 					fastkey.answer = randomWords();
 					socket.emit(
 						"messageMagic",
@@ -212,6 +239,12 @@ const start = async () => {
 					socket.broadcast.emit(
 						"messageMagic",
 						`The game is to type the word ${fastkey.answer} quickly`
+					);
+				}
+				else {
+					socket.emit(
+						"messageMagic",
+						"waiting other player"
 					);
 				}
 				console.log(fastkey.nb);
@@ -265,7 +298,17 @@ const start = async () => {
 				hanged.nb = hanged.nb || 0;
 				hanged.nb++;
 
-				if (hanged.nb == 2) {
+				if (hanged.started) {
+					socket.emit(
+						"messageMagic",
+						"The game is already started wait the end"
+					);
+				}
+				else if (hanged.nb == 2) {
+					hanged.started = true;
+					socket.emit("start", true);
+					socket.broadcast.emit("start", true);
+
 					hanged.answer = randomWords();
 					const snake = hanged.answer
 						.split("")
@@ -276,6 +319,13 @@ const start = async () => {
 					socket.emit("messageMagic", `find dat word: ${snake}`);
 					socket.broadcast.emit("messageMagic", `find dat word: ${snake}`);
 				}
+				else {
+					socket.emit(
+						"messageMagic",
+						"waiting other player"
+					);
+				}
+				
 				console.log(hanged.nb);
 				console.log(`${socket.nickname} is ready`);
 			});
