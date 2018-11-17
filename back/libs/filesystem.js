@@ -1,5 +1,6 @@
 import fs from "fs";
-import json from '../db/gamers.json'
+
+const jsonGamers = '../db/gamers.json'
 
 class Filesystem {
 
@@ -12,7 +13,7 @@ class Filesystem {
 
   getGamers() {
     try {
-      let data = fs.readFileSync('db/gamers.json');
+      let data = fs.readFileSync(jsonGamers);
       return JSON.parse(data);
     } catch (err) {
       console.log(err);
@@ -21,9 +22,9 @@ class Filesystem {
 
   setGamers(nickname) {
     try {
-      let data = JSON.parse(fs.readFileSync('db/gamers.json'));
+      let data = JSON.parse(fs.readFileSync(jsonGamers));
       data.gamers.push(nickname)
-      fs.writeFileSync('db/gamers.json', JSON.stringify(data));
+      fs.writeFileSync(jsonGamers, JSON.stringify(data));
     } catch (err) {
       console.log(err);
     }
@@ -31,9 +32,9 @@ class Filesystem {
 
   clearGamers(nickname) {
     try {
-      let data = JSON.parse(fs.readFileSync('db/gamers.json'));
+      let data = JSON.parse(fs.readFileSync(jsonGamers));
       data.gamers = [];
-      fs.writeFileSync('db/gamers.json', JSON.stringify(data));
+      fs.writeFileSync(jsonGamers, JSON.stringify(data));
     } catch (err) {
       console.log(err);
     }

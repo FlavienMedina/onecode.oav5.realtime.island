@@ -16,7 +16,6 @@ module.exports = {
       env: {
         PORT: 5000,
         NODE_ENV: 'development',
-
         DEBUG: 'socket.io*',
       },
       env_production: {

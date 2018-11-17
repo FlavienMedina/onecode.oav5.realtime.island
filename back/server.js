@@ -36,10 +36,6 @@ const start = async () => {
 		io.on("connection", socket => {
 			mlog("client connected", "yellow");
 
-			// let gamers = Filesystem.getGamers();
-			// mlog("List of gamers:", "cyan");
-			// mlog(JSON.stringify(gamers), "cyan");
-
 			socket.on("disconnect", () => {
 				mlog("client disconnected", "yellow");
 			});
@@ -49,16 +45,16 @@ const start = async () => {
 				socket.nickname = nickname;
 
 				let data = Filesystem.getGamers();
-				let i = data.gamers.length + 1;
 
-				// Filesystem.setGamers({ id: i, nickname });
+				let i = data.gamers.length + 1;
+				Filesystem.setGamers({ id: i, nickname });
 				socket.emit("welcome", "Welcome to the socket gaming platform!");
 			});
 		});
+
 		let mNumb = io.of("/magicNumber");
 		mNumb.on("connection", function(socket) {
 			mNumb.emit("welcome", "Welcome in the MagicNumber Room");
-
 			socket.on("join", nickname => {
 				socket.nickname = nickname;
 
@@ -74,8 +70,17 @@ const start = async () => {
 			socket.on("start", () => {
 				mNumb.nb = mNumb.nb || 0;
 				mNumb.nb++;
-
-				if (mNumb.nb == 2) {
+				console.log(mNumb.started);
+				if (mNumb.started) {
+					socket.emit(
+						"messageMagic",
+						"The game is already started wait the end"
+					);
+				}
+				else if (mNumb.nb == 2) {
+					mNumb.started = true;
+					socket.emit("start", true);
+					socket.broadcast.emit("start", true);
 					socket.emit(
 						"messageMagic",
 						"The game is started guess a name between 0 and 1337"
@@ -85,7 +90,13 @@ const start = async () => {
 						"The game is started guess a name between 0 and 1337"
 					);
 				}
-				console.log(mNumb.nb);
+				else {
+					socket.emit(
+						"messageMagic",
+						"waiting other player"
+					);
+				}
+				// console.log(mNumb.nb);
 				console.log(`${socket.nickname} is ready`);
 			});
 
