@@ -133,6 +133,10 @@ const start = async () => {
 						win = `You win this round, ${3 - socket.round}more win to.... win`;
 					}
 					const lose = socket.round == 3 ? "You lose" : `You lose this round`;
+					if (win == "You win") {
+						mNumb.nb = null;
+						mNumb.started = false;
+					}
 					socket.emit("messageMagic", win);
 					socket.broadcast.emit("messageMagic", lose);
 					mNumb.answer = null;
@@ -211,9 +215,13 @@ const start = async () => {
 				quickey.loop = quickey.loop || 0;
 				quickey.loop++;
 				socket.resultat = nb;
+				socket.round++;
 				let win;
 				if (quickey.loop == nbPlayer) {
 					quickey.loop = 0;
+					let max = 26;
+					let answer = Math.floor(Math.random() * max) + 97;
+					quickey.answer = answer;
 					if (socket.round == 7) {
 						let playerIndex = quickeyScores.players.findIndex(
 							x => x.name == socket.nickname
@@ -242,13 +250,13 @@ const start = async () => {
 					let winner = {};
 					winner.resultat = -1;
 					let arrClients = [];
+					socket.emit("key", quickey.answer);
+					socket.broadcast.emit("key", quickey.answer);
 					for (const key in clients) {
 						arrClients.push(clients[key]);
 					}
 
 					for (const item of arrClients) {
-						console.log("resultat " + item.resultat);
-						console.log(winner.resultat);
 						if (item.resultat > winner.resultat) {
 							winner = item;
 						}
@@ -258,13 +266,16 @@ const start = async () => {
 					for (const item of arrClients.filter(x => x.id != winner.id)) {
 						item.emit("messageMagic", lose);
 					}
-					let max = 26;
-					let answer = Math.floor(Math.random() * max) + 97;
-					quickey.answer = answer;
-					setTimeout(function() {
-						socket.emit("finish", true);
-						socket.broadcast.emit("finish", true);
-					}, 5000);
+
+					if (socket.round != 7) {
+						setTimeout(function() {
+							socket.emit("finish", true);
+							socket.broadcast.emit("finish", true);
+						}, 5000);
+					} else {
+						quickey.started = false;
+						quickey.nb = null;
+					}
 				}
 			});
 		});
@@ -355,6 +366,10 @@ const start = async () => {
 							: `You lose this round  Here the new word to type ${
 									fastkey.answer
 							  }`;
+					if (win == "You win") {
+						fastkey.nb = null;
+						fastkey.started = false;
+					}
 					socket.emit("messageMagic", win);
 					socket.broadcast.emit("messageMagic", lose);
 				}
@@ -454,6 +469,10 @@ const start = async () => {
 						socket.round == 3
 							? "You lose"
 							: `You lose this round  Here the new word: ${snake}`;
+					if (win == "You win") {
+						hanged.nb = null;
+						hanged.started = false;
+					}
 					socket.emit("messageMagic", win);
 					socket.broadcast.emit("messageMagic", lose);
 				}
