@@ -53,32 +53,35 @@ const start = async () => {
 		});
 
 		let mNumb = io.of("/magicNumber");
-		let mNumbScores = {"beg": 0,"end": 0,"players": []};
+		let mNumbScores = { beg: 0, end: 0, players: [] };
 		mNumb.on("connection", function(socket) {
 			mNumb.emit("welcome", "Welcome in the MagicNumber Room");
 			socket.on("join", nickname => {
 				socket.nickname = nickname;
-
 				console.log(`${nickname} has joined the MagicNumber Room`);
 			});
 
-			mNumb.on("disconnect", nickname => {
-				mNumb.nb = mNumb.nb - 1;
-				mNumb.nb = mNumb.nb == 0 ? null : mNumb.nb;
-				mNumb.emit("messageMagic", null);
+			socket.on("disconnect", nickname => {
+				if(mNumb.nb){
+					mNumb.nb--
+				}
+				mNumb.emit("messageMagic", "Waiting for another player");
+				if(mNumb.nb != 2) {
+					mNumb.started = false;
+				}
+				console.log(`${socket.nickname} has leave the quickey Room`);
 			});
 
 			socket.on("start", () => {
 				mNumb.nb = mNumb.nb || 0;
 				mNumb.nb++;
-				mNumbScores.players.push({name:socket.nickname,points:0})
+				mNumbScores.players.push({ name: socket.nickname, points: 0 });
 				if (mNumb.started) {
 					socket.emit(
 						"messageMagic",
 						"The game is already started wait the end"
 					);
-				}
-				else if (mNumb.nb == 2) {
+				} else if (mNumb.nb == 2) {
 					mNumb.started = true;
 					// for (var variable in mNumb.server.nsps['/magicNumber'].sockets) {
 					// 	console.log(mNumb.server.nsps['/magicNumber'].sockets[variable].nickname);
@@ -94,14 +97,10 @@ const start = async () => {
 						"messageMagic",
 						"The game is started guess a name between 0 and 1337"
 					);
+				} else {
+					socket.emit("messageMagic", "waiting other player");
 				}
-				else {
-					socket.emit(
-						"messageMagic",
-						"waiting other player"
-					);
-				}
-				// console.log(mNumb.nb);
+				console.log(mNumb.nb);
 				console.log(`${socket.nickname} is ready`);
 			});
 
@@ -119,14 +118,17 @@ const start = async () => {
 					socket.round++;
 					let win;
 					if (socket.round == 3) {
-						let playerIndex = mNumbScores.players.findIndex(x => x.name == socket.nickname);
+						let playerIndex = mNumbScores.players.findIndex(
+							x => x.name == socket.nickname
+						);
 						mNumbScores.players[playerIndex].points = socket.round;
 						mNumbScores.end = new Date();
 						Filesystem.setScores(socket.nsp.name, mNumbScores);
 						win = "You win";
-					}
-					else{
-						let playerIndex = mNumbScores.players.findIndex(x => x.name == socket.nickname);
+					} else {
+						let playerIndex = mNumbScores.players.findIndex(
+							x => x.name == socket.nickname
+						);
 						mNumbScores.players[playerIndex].points += 1;
 						win = `You win this round, ${3 - socket.round}more win to.... win`;
 					}
@@ -139,34 +141,37 @@ const start = async () => {
 		});
 
 		let quickey = io.of("/quickey");
-		let quickeyScores = {"beg": 0,"end": 0,"players": []};
+		let quickeyScores = { beg: 0, end: 0, players: [] };
 		quickey.on("connection", function(socket) {
-			quickey.emit("welcome", "Welcome in the guess word Room");
+			quickey.emit("welcome", "Welcome in the quickey Room");
 
 			socket.on("join", nickname => {
 				socket.nickname = nickname;
-
-				console.log(`${nickname} has joined the guess word Room`);
+				console.log(`${nickname} has joined the quickey Room`);
 			});
 
-			quickey.on("disconnect", nickname => {
-				quickey.nb = quickey.nb - 1;
-				quickey.nb = quickey.nb == 0 ? null : quickey.nb;
-				quickey.emit("messageMagic", null);
+			socket.on("disconnect", nickname => {
+				if(quickey.nb){
+					quickey.nb--
+				}
+				quickey.emit("messageMagic", "Waiting for another player");
+				if(quickey.nb != 2) {
+					quickey.started = false;
+				}
+				console.log(`${socket.nickname} has leave the quickey Room`);
 			});
 
 			socket.on("start", () => {
 				quickey.nb = quickey.nb || 0;
 				quickey.nb++;
-				quickeyScores.players.push({name:socket.nickname,points:0})
+				quickeyScores.players.push({ name: socket.nickname, points: 0 });
 
 				if (quickey.started) {
 					socket.emit(
 						"messageMagic",
 						"The game is already started wait the end"
 					);
-				}
-				else if (quickey.nb == 2) {
+				} else if (quickey.nb == 2) {
 					quickey.started = true;
 					quickeyScores.beg = new Date();
 
@@ -182,12 +187,8 @@ const start = async () => {
 						"messageMagic",
 						`The game is to type the word ${quickey.answer} quickly`
 					);
-				}
-				else {
-					socket.emit(
-						"messageMagic",
-						"waiting other player"
-					);
+				} else {
+					socket.emit("messageMagic", "waiting other player");
 				}
 
 				console.log(quickey.nb);
@@ -204,16 +205,22 @@ const start = async () => {
 					quickey.answer = randomWords();
 					let win;
 					if (socket.round == 7) {
-						let playerIndex = quickeyScores.players.findIndex(x => x.name == socket.nickname);
+						let playerIndex = quickeyScores.players.findIndex(
+							x => x.name == socket.nickname
+						);
 						quickeyScores.players[playerIndex].points = socket.round;
 						quickeyScores.end = new Date();
 						Filesystem.setScores(socket.nsp.name, quickeyScores);
 						win = "You win";
-					}
-					else {
-						let playerIndex = quickeyScores.players.findIndex(x => x.name == socket.nickname);
+					} else {
+						let playerIndex = quickeyScores.players.findIndex(
+							x => x.name == socket.nickname
+						);
 						quickeyScores.players[playerIndex].points += 1;
-						win = `You win this round, ${7 - socket.round} more win to.... win. Here the new key: ${quickey.answer}`
+						win = `You win this round, ${7 -
+							socket.round} more win to.... win. Here the new key: ${
+							quickey.answer
+						}`;
 					}
 					const lose =
 						socket.round == 7
@@ -225,33 +232,37 @@ const start = async () => {
 			});
 		});
 		let fastkey = io.of("/fastkey");
-		let fastkeyScores = {"beg": 0,"end": 0,"players": []};
+		let fastkeyScores = { beg: 0, end: 0, players: [] };
 		fastkey.on("connection", function(socket) {
-			fastkey.emit("welcome", "Welcome in the guess word Room");
+			fastkey.emit("welcome", "Welcome in the fastkey Room");
 
 			socket.on("join", nickname => {
 				socket.nickname = nickname;
-				console.log(`${nickname} has joined the guess word Room`);
+				console.log(`${nickname} has joined the fastkey Room`);
 			});
 
-			fastkey.on("disconnect", nickname => {
-				fastkey.nb = fastkey.nb - 1;
-				fastkey.nb = fastkey.nb == 0 ? null : fastkey.nb;
-				fastkey.emit("messageMagic", null);
+			socket.on("disconnect", nickname => {
+				if(fastkey.nb){
+					fastkey.nb--
+				}
+				fastkey.emit("messageMagic", "Waiting for another player");
+				if(fastkey.nb != 2) {
+					fastkey.started = false;
+				}
+				console.log(`${socket.nickname} has leave the quickey Room`);
 			});
 
 			socket.on("start", () => {
 				fastkey.nb = fastkey.nb || 0;
 				fastkey.nb++;
-				fastkeyScores.players.push({name:socket.nickname,points:0})
+				fastkeyScores.players.push({ name: socket.nickname, points: 0 });
 
 				if (fastkey.started) {
 					socket.emit(
 						"messageMagic",
 						"The game is already started wait the end"
 					);
-				}
-				else if (fastkey.nb == 2) {
+				} else if (fastkey.nb == 2) {
 					fastkeyScores.beg = new Date();
 					fastkey.started = true;
 					socket.emit("start", true);
@@ -266,12 +277,8 @@ const start = async () => {
 						"messageMagic",
 						`The game is to type the word ${fastkey.answer} quickly`
 					);
-				}
-				else {
-					socket.emit(
-						"messageMagic",
-						"waiting other player"
-					);
+				} else {
+					socket.emit("messageMagic", "waiting other player");
 				}
 				console.log(fastkey.nb);
 				console.log(`${socket.nickname} is ready`);
@@ -287,16 +294,22 @@ const start = async () => {
 					fastkey.answer = randomWords();
 					let win;
 					if (socket.round == 7) {
-						let playerIndex = fastkeyScores.players.findIndex(x => x.name == socket.nickname);
+						let playerIndex = fastkeyScores.players.findIndex(
+							x => x.name == socket.nickname
+						);
 						fastkeyScores.players[playerIndex].points = socket.round;
 						fastkeyScores.end = new Date();
 						Filesystem.setScores(socket.nsp.name, fastkeyScores);
 						win = "You win";
-					}
-					else {
-						let playerIndex = fastkeyScores.players.findIndex(x => x.name == socket.nickname);
+					} else {
+						let playerIndex = fastkeyScores.players.findIndex(
+							x => x.name == socket.nickname
+						);
 						fastkeyScores.players[playerIndex].points += 1;
-						win = `You win this round, ${7 - socket.round} more win to.... win. Here the new key: ${fastkey.answer}`
+						win = `You win this round, ${7 -
+							socket.round} more win to.... win. Here the new word: ${
+							fastkey.answer
+						}`;
 					}
 					const lose =
 						socket.round == 7
@@ -311,34 +324,36 @@ const start = async () => {
 		});
 
 		let hanged = io.of("/hanged");
-		let hangedScores = {"beg": 0,"end": 0,"players": []};
+		let hangedScores = { beg: 0, end: 0, players: [] };
 		hanged.on("connection", function(socket) {
-			hanged.emit("welcome", "Welcome in the guess word Room");
+			hanged.emit("welcome", "Welcome in the hanged Room");
 
 			socket.on("join", nickname => {
 				socket.nickname = nickname;
 
-				console.log(`${nickname} has joined the guess word Room`);
+				console.log(`${nickname} has joined the hanged Room`);
 			});
 
-			hanged.on("disconnect", nickname => {
-				hanged.nb = hanged.nb - 1;
-				hanged.nb = hanged.nb == 0 ? null : hanged.nb;
-				hanged.emit("messageMagic", null);
+			socket.on("disconnect", nickname => {
+				hanged.nb--
+				hanged.emit("messageMagic", "Waiting for another player");
+				if(hanged.nb != 2) {
+					hanged.started = false;
+				}
+				console.log(`${socket.nickname} has leave the hanged Room`);
 			});
 
 			socket.on("start", () => {
 				hanged.nb = hanged.nb || 0;
 				hanged.nb++;
-				hangedScores.players.push({name:socket.nickname,points:0})
+				hangedScores.players.push({ name: socket.nickname, points: 0 });
 
 				if (hanged.started) {
 					socket.emit(
 						"messageMagic",
 						"The game is already started wait the end"
 					);
-				}
-				else if (hanged.nb == 2) {
+				} else if (hanged.nb == 2) {
 					hanged.started = true;
 					hangedScores.beg = new Date();
 
@@ -354,12 +369,8 @@ const start = async () => {
 
 					socket.emit("messageMagic", `find dat word: ${snake}`);
 					socket.broadcast.emit("messageMagic", `find dat word: ${snake}`);
-				}
-				else {
-					socket.emit(
-						"messageMagic",
-						"waiting other player"
-					);
+				} else {
+					socket.emit("messageMagic", "waiting other player");
 				}
 
 				console.log(hanged.nb);
@@ -386,16 +397,20 @@ const start = async () => {
 					hanged.snake = hanged.answer.split("").map(x => "_");
 					let win;
 					if (socket.round == 3) {
-						let playerIndex = hangedScores.players.findIndex(x => x.name == socket.nickname);
+						let playerIndex = hangedScores.players.findIndex(
+							x => x.name == socket.nickname
+						);
 						hangedScores.players[playerIndex].points = socket.round;
 						hangedScores.end = new Date();
 						Filesystem.setScores(socket.nsp.name, hangedScores);
 						win = "You win";
-					}
-					else {
-						let playerIndex = hangedScores.players.findIndex(x => x.name == socket.nickname);
+					} else {
+						let playerIndex = hangedScores.players.findIndex(
+							x => x.name == socket.nickname
+						);
 						hangedScores.players[playerIndex].points += 1;
-						win = `You win this round, ${3 - socket.round} more win to.... win. Here the new word: ${snake}`
+						win = `You win this round, ${3 -
+							socket.round} more win to.... win. Here the new word: ${snake}`;
 					}
 					const lose =
 						socket.round == 3
