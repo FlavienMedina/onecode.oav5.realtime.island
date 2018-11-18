@@ -12,7 +12,7 @@ import Filesystem from "./libs/filesystem";
 // Instantiate express application
 const app = express();
 // const gamers = [];
-const nbPlayer = 2;
+const nbPlayer = 3;
 let i = 0;
 // Setting the application port depending to environment
 const port = parseInt(argv[0], 10) || process.env.PORT;
