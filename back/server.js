@@ -202,7 +202,7 @@ const start = async () => {
 					setTimeout(function() {
 						socket.emit("finish", true);
 						socket.broadcast.emit("finish", true);
-					}, 5000);
+					}, 42000);
 				} else {
 					socket.emit("messageMagic", "waiting other player");
 				}
@@ -271,7 +271,7 @@ const start = async () => {
 						setTimeout(function() {
 							socket.emit("finish", true);
 							socket.broadcast.emit("finish", true);
-						}, 5000);
+						}, 42000);
 					} else {
 						quickey.started = false;
 						quickey.nb = null;
@@ -491,13 +491,5 @@ function getAllIndexes(arr, val) {
 	return indexes;
 }
 
-function sleep(milliseconds) {
-	var start = new Date().getTime();
-	for (var i = 0; i < 1e7; i++) {
-		if (new Date().getTime() - start > milliseconds) {
-			break;
-		}
-	}
-}
 // Let's Rock!
 start();
